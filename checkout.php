@@ -48,24 +48,25 @@ try {
     foreach ($cart as $item) {
         $itemID = (int)$item['id'];         // Pastikan id sesuai dengan cart key (id or itemID)
         $qty = (int)$item['quantity'];
+        $itemName = $item['name']; // Get the item name from cart data
 
         // Lock row item
-        $stockResult = mysqli_query($conn, "SELECT availableStock FROM items WHERE itemID = $itemID FOR UPDATE");
+        $stockResult = mysqli_query($conn, "SELECT itemName, availableStock FROM items WHERE itemID = $itemID FOR UPDATE");
         if (!$stockResult || mysqli_num_rows($stockResult) === 0) {
-            throw new Exception("Item ID $itemID not found.");
+            throw new Exception("Item '{$itemName}' (ID: $itemID) is no longer available.");
         }
         $product = mysqli_fetch_assoc($stockResult);
         $currentStock = (int)$product['availableStock'];
 
         if ($currentStock < $qty) {
-            throw new Exception("Insufficient stock for item ID $itemID.");
+            throw new Exception("Insufficient stock for '{$product['itemName']}'. Only {$currentStock} available.");
         }
 
         // Update stock
         $newStock = $currentStock - $qty;
         $updateStock = mysqli_query($conn, "UPDATE items SET availableStock = $newStock WHERE itemID = $itemID");
         if (!$updateStock) {
-            throw new Exception("Failed to update stock for item ID $itemID.");
+            throw new Exception("Failed to update stock for '{$product['itemName']}'.");
         }
     }
 
@@ -91,9 +92,18 @@ try {
     // Commit semua perubahan
     mysqli_commit($conn);
 
-    echo json_encode(['message' => 'Checkout successful!']);
+    echo json_encode([
+        'success' => true,
+        'message' => 'Checkout successful!',
+        'orderID' => $orderID,
+        'newBalance' => $newBalance
+    ]);
 } catch (Exception $e) {
     mysqli_rollback($conn);
-    echo json_encode(['message' => $e->getMessage()]);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage(),
+        'errorType' => 'stock_insufficient' // or other error types
+    ]);
     exit;
 }

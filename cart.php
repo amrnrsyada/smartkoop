@@ -206,10 +206,21 @@ function proceedCheckout() {
   })
   .then(res => res.json())
   .then(data => {
-    localStorage.removeItem("cart");
-    showAlert(data.message, "success", true); // redirect after success
+    if (data.success) {
+      localStorage.removeItem("cart");
+      showAlert(data.message, "success", true); // redirect after success
+    } else {
+      // Show error with appropriate icon
+      const icon = data.errorType === 'stock_insufficient' ? 'warning' : 'warning';
+      showAlert(data.message, icon);
+      
+      // Optional: Update cart if stock changed
+      if (data.errorType === 'stock_insufficient') {
+        updateCartFromServer(); // You might want to implement this
+      }
+    }
   })
-  .catch(() => showAlert("Checkout failed. Please try again.", "error"));
+  .catch(() => showAlert("Insufficient stock.", "warning"));
 }
 
 

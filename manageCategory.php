@@ -73,7 +73,6 @@ include('header.php');
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
                 <h3 class="fw-bold text-dark d-flex align-items-center gap-2"><i class="fas fa-tags"></i> Category Lists</h3>
-                <a href="manageItem.php" class="btn btn-success"><i class="fas fa-shopping-basket"></i></a>
             </div>
 
             <div class="row g-4">
