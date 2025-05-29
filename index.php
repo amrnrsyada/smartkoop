@@ -1,471 +1,276 @@
+<?php
+session_start();
+
+$errors = [
+    'login' => $_SESSION['login_error'] ?? '',
+    'register' => $_SESSION['register_error'] ?? ''
+];
+
+$activeForm = $_SESSION['active_form'] ?? 'login';
+session_unset();
+
+function showError($error) {
+    return !empty($error) ? "<div class='alert alert-danger mb-4'>$error</div>" : '';
+}
+
+function isActiveForm($formName, $activeForm) {
+    return $formName === $activeForm ? 'd-block' : 'd-none';
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PETAKOM MART - Support Local Everything</title>
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&family=Shrikhand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --primary-color: #a0181e;
-      --secondary-color: #b89e5d;
-      --accent-color: #f7e6d2;
-      --background-color: #f8f9fa;
-      --text-color: #333;
-      --light-text: #6c757d;
-      --white: #ffffff;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Raleway', sans-serif;
-      background: var(--background-color);
-      color: var(--text-color);
-      line-height: 1.6;
-    }
-
-    .container {
-      max-width: 1300px;
-      margin: 30px auto;
-      background: var(--white);
-      border-radius: 16px;
-      padding: 30px;
-      box-shadow: var(--shadow);
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      padding-bottom: 20px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo img {
-      width: 40px;
-      height: 40px;
-    }
-
-    .logo-text {
-      font-weight: 700;
-      color: var(--primary-color);
-      font-size: 1.2rem;
-    }
-
-    nav.nav {
-      display: flex;
-      gap: 15px;
-      font-weight: 600;
-      align-items: center;
-    }
-
-    nav.nav a {
-      text-decoration: none;
-      color: var(--text-color);
-      padding: 8px 16px;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-      font-size: 0.95rem;
-    }
-
-    nav.nav a.active,
-    nav.nav a:hover {
-      background: var(--accent-color);
-      color: var(--primary-color);
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .search {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .search input {
-      padding: 8px 15px 8px 35px;
-      border-radius: 20px;
-      border: 1px solid #e0e0e0;
-      font-size: 0.9rem;
-      min-width: 200px;
-      transition: all 0.3s;
-    }
-
-    .search input:focus {
-      outline: none;
-      border-color: var(--secondary-color);
-      box-shadow: 0 0 0 2px rgba(184, 158, 93, 0.2);
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 12px;
-      color: var(--light-text);
-    }
-
-    .user-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background-color: var(--accent-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary-color);
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .user-icon:hover {
-      transform: translateY(-2px);
-    }
-
-    .hero {
-      margin-top: 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 40px;
-    }
-
-    .left {
-      flex: 1;
-      min-width: 300px;
-    }
-
-    .left h1 {
-      font-family: 'Shrikhand', cursive;
-      font-size: clamp(2.5rem, 5vw, 3.5rem);
-      color: var(--primary-color);
-      margin-bottom: 15px;
-      line-height: 1.2;
-    }
-
-    .left h3 {
-      font-size: 0.9rem;
-      letter-spacing: 3px;
-      color: var(--secondary-color);
-      margin-bottom: 30px;
-      text-transform: uppercase;
-    }
-
-    .choose {
-      background: var(--accent-color);
-      padding: 12px 20px;
-      display: inline-flex;
-      align-items: center;
-      border-radius: 10px;
-      gap: 10px;
-      margin-bottom: 25px;
-      font-size: 0.9rem;
-    }
-
-    .choose span {
-      font-weight: 600;
-      font-size: 1rem;
-    }
-
-    .choose i {
-      color: var(--primary-color);
-    }
-
-    .buy-btn {
-      background: var(--primary-color);
-      color: var(--white);
-      padding: 14px 32px;
-      font-weight: 600;
-      border: none;
-      border-radius: 30px;
-      box-shadow: 0 4px 15px rgba(160, 24, 30, 0.3);
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-size: 1rem;
-    }
-
-    .buy-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(160, 24, 30, 0.4);
-    }
-
-    .buy-btn:active {
-      transform: translateY(0);
-    }
-
-    .right {
-      flex: 1;
-      position: relative;
-      text-align: center;
-      min-width: 300px;
-    }
-
-    .main-image {
-      width: 100%;
-      max-width: 500px;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      transition: all 0.5s ease;
-    }
-
-    .main-image:hover {
-      transform: scale(1.02);
-    }
-
-    .tag {
-      position: absolute;
-      background: var(--white);
-      padding: 10px 20px;
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-      font-size: 0.85rem;
-      font-weight: 600;
-      animation: float 3s ease-in-out infinite;
-    }
-
-    .tag.minimal {
-      top: 40px;
-      right: 60px;
-      animation-delay: 0.2s;
-    }
-
-    .tag.cozy {
-      bottom: 60px;
-      left: 40px;
-      animation-delay: 0.4s;
-    }
-
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-      100% { transform: translateY(0px); }
-    }
-
-    .side-thumbs {
-      position: absolute;
-      top: 50%;
-      right: -30px;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .side-thumbs img {
-      width: 70px;
-      height: 70px;
-      border-radius: 12px;
-      object-fit: cover;
-      border: 2px solid var(--white);
-      box-shadow: var(--shadow);
-      transition: all 0.3s;
-      cursor: pointer;
-    }
-
-    .side-thumbs img:hover {
-      transform: scale(1.1);
-    }
-
-    .continue {
-      margin-top: 30px;
-      color: var(--secondary-color);
-      font-weight: 600;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s;
-    }
-
-    .continue:hover {
-      color: var(--primary-color);
-    }
-
-    .continue i {
-      transition: transform 0.3s;
-    }
-
-    .continue:hover i {
-      transform: translateX(5px);
-    }
-
-    /* Responsive Styles */
-    @media (max-width: 1024px) {
-      .container {
-        margin: 20px;
-        padding: 25px;
-      }
-      
-      .side-thumbs {
-        right: -15px;
-      }
-      
-      .side-thumbs img {
-        width: 60px;
-        height: 60px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 15px;
-      }
-      
-      .logo {
-        justify-content: center;
-      }
-      
-      nav.nav {
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-      
-      .header-actions {
-        justify-content: center;
-        margin-top: 10px;
-      }
-      
-      .hero {
-        flex-direction: column;
-        text-align: center;
-        gap: 30px;
-      }
-      
-      .left {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      
-      .right {
-        margin-top: 20px;
-      }
-      
-      .side-thumbs {
-        display: none;
-      }
-      
-      .tag.minimal {
-        top: 20px;
-        right: 20px;
-      }
-      
-      .tag.cozy {
-        bottom: 20px;
-        left: 20px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .container {
-        margin: 10px;
-        padding: 20px;
-      }
-      
-      nav.nav {
-        gap: 8px;
-      }
-      
-      nav.nav a {
-        padding: 6px 12px;
-        font-size: 0.85rem;
-      }
-      
-      .search input {
-        min-width: 150px;
-      }
-      
-      .left h1 {
-        font-size: 2.2rem;
-      }
-      
-      .main-image {
-        max-width: 100%;
-      }
-      
-      .tag {
-        padding: 8px 15px;
-        font-size: 0.75rem;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <div class="logo">
-        <img src="uploads/logo.png" alt="PETAKOM MART Logo">
-        <span class="logo-text">PETAKOM MART</span>
-      </div>
-      <nav class="nav">
-        <a href="index.html" class="active">Home</a>
-        <a href="makeOrder.php">Items</a>
-        <a href="#">About</a>
-        <a href="index.php">Login</a>
-      </nav>
-      <div class="header-actions">
-        <div class="search">
-          <i class="fas fa-search search-icon"></i>
-          <input type="text" placeholder="Search products..." />
-        </div>
-        <div class="user-icon">
-          <i class="fas fa-user"></i>
-        </div>
-      </div>
-    </header>
-
-    <section class="hero">
-      <div class="left">
-        <h1>Petakom Mart</h1>
-        <h3>The Faculty Pit Stop - Grab & Go!</h3>
-
-        <div class="choose">
-          <span>Choose your favorites</span>
-          <i class="fas fa-heart"></i>
-        </div>
-
-        <button class="buy-btn">
-          <i class="fas fa-shopping-cart"></i> Buy Now
-        </button>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PETAKOM MART</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #7494ec;
+            --primary-hover: #6884d3;
+            --gradient-start: #e2e2ee;
+            --gradient-end: #c9d6ff;
+            --dark-color: #343a40;
+        }
         
-        <a href="index.php" class="continue">
-          Explore more <i class="fas fa-arrow-right"></i>
-        </a>
-      </div>
+        body {
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+            font-family: "Poppins", sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .auth-container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        .auth-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .brand-logo {
+            height: 80px;
+            margin-bottom: 15px;
+        }
+        
+        .brand-title {
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0;
+            font-size: 2rem;
+        }
+        
+        .form-box {
+            padding: 30px;
+        }
+        
+        .form-control {
+            background: #f8f9fa;
+            border: none;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            height: 45px;
+        }
+        
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(116, 148, 236, 0.2);
+        }
+        
+        .btn-auth {
+            background: var(--primary-color);
+            border: none;
+            padding: 12px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-auth:hover {
+            background: var(--primary-hover);
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .auth-link {
+            color: var(--primary-color);
+            font-weight: 500;
+            text-decoration: none;
+        }
+        
+        .auth-link:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+        
+        .form-switch {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .role-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .role-option {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .role-option:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .role-option.active {
+            border-color: var(--primary-color);
+            background-color: rgba(116, 148, 236, 0.1);
+        }
+        
+        .role-option i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+        
+        input[type="radio"].role-radio {
+            display: none;
+        }
+    </style>
+</head>
 
-      <div class="right">
-        <img src="uploads/mart.jpg" alt="PETAKOM MART Products" class="main-image" />
-        <div class="tag minimal">Affordable</div>
-        <div class="tag cozy">Great value</div>
-        <div class="side-thumbs">
-          <img src="uploads/roti coklat.png" alt="Chocolate Bread"/>
-          <img src="uploads/ramen carbo.png" alt="Carbonara Ramen" />
-          <img src="uploads/mr potato.png" alt="Mr. Potato Chips" />
-        </div>
-      </div>
-    </section>
-  </div>
+<body>
+    <div class="container">
+        <div class="auth-container">
+            <!-- Brand Header -->
+            <div style="text-align: center" class="mb-4">
+                <img src="uploads/logo.png" alt="PETAKOM MART" class="brand-logo">
+                <h1 class="brand-title">PETAKOM MART</h1>
+            </div>
+            
+            <!-- Auth Card -->
+            <div class="auth-card">
+                <!-- Login Form -->
+                <div class="form-box <?= isActiveForm('login', $activeForm) ?>" id="login-form">
+                    <form action="login_register.php" method="post">
+                        <h2 class="text-center mb-4" style="font-weight: 500;">Login</h2>
+                        <?= showError($errors['login']) ?>
+                        
+                        <div class="mb-3">
+                            <input type="email" name="email" class="form-control" placeholder="Email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <input type="password" name="password" class="form-control" placeholder="Password" required>
+                        </div>
+                        
+                        <div class="role-selector">
+                            <label class="role-option active">
+                                <input type="radio" name="role" value="staff" class="role-radio" checked>
+                                <i class="fas fa-user-tie"></i>
+                                <div>Staff</div>
+                            </label>
+                            <label class="role-option">
+                                <input type="radio" name="role" value="customer" class="role-radio">
+                                <i class="fas fa-user"></i>
+                                <div>Customer</div>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" name="login" class="btn btn-auth btn-primary w-100 mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i> Login
+                        </button>
+                        
+                        <div class="form-switch">
+                            <p class="mb-2">Don't have an account? <a href="#" onclick="showForm('register-form')" class="auth-link">Register</a></p>
+                            <p class="mb-0"><a href="forgot_password.php" class="auth-link">Forgot your password?</a></p>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Register Form -->
+                <div class="form-box <?= isActiveForm('register', $activeForm) ?>" id="register-form">
+                    <form action="login_register.php" method="post">
+                        <h2 class="text-center mb-4" style="font-weight: 500;">Register</h2>
+                        <?= showError($errors['register']) ?>
+                        
+                        <div class="mb-3">
+                            <input type="text" name="name" class="form-control" placeholder="Full Name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <input type="email" name="email" class="form-control" placeholder="Email Address" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <input type="password" name="password" class="form-control" placeholder="Create Password" required>
+                        </div>
+                        
+                        <!-- Hidden role field set to customer -->
+                        <input type="hidden" name="role" value="customer">
+                        
+                        <button type="submit" name="register" class="btn btn-auth btn-primary w-100 mb-3">
+                            <i class="fas fa-user-plus me-2"></i> Register
+                        </button>
+                        
+                        <div class="form-switch">
+                            <p class="mb-0">Already have an account? <a href="#" onclick="showForm('login-form')" class="auth-link">Login</a></p>
+                        </div>
+                    </form>
+                </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showForm(formId) {
+            document.querySelectorAll('.form-box').forEach(form => {
+                form.classList.add('d-none');
+                form.classList.remove('d-block');
+            });
+            document.getElementById(formId).classList.add('d-block');
+            document.getElementById(formId).classList.remove('d-none');
+        }
+
+        // Role selection functionality
+        document.querySelectorAll('.role-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove active class from all options in this group
+                const group = this.closest('.role-selector');
+                group.querySelectorAll('.role-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Add active class to clicked option
+                this.classList.add('active');
+                
+                // Check the corresponding radio button
+                const radio = this.querySelector('.role-radio');
+                radio.checked = true;
+            });
+        });
+    </script>
 </body>
 </html>
