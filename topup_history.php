@@ -39,7 +39,7 @@ include('header.php');
     <div class="card">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-                <h3 class="fw-bold text-dark d-flex align-items-center gap-2"><i class="fas fa-wallet me-2"></i>Top-up History</h3>
+                <h3 class="fw-bold text-dark d-flex align-items-center gap-2"><i class="fas fa-wallet me-2"></i>My Topup</h3>
             </div>
             <div class="text-start fs-5 fw-semibold text-success mb-3">Wallet Balance: RM <?= number_format($walletBalance, 2) ?></div>
 

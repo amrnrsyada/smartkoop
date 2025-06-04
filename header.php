@@ -92,7 +92,7 @@ if (!isset($_SESSION['role'])) {
                                 </nav>
                             </div>
 
-                            <a class="nav-link" href="order_history.php">
+                            <a class="nav-link" href="order_history_staff.php">
                                 <div class="sb-nav-link-icon"><i class="fas fa-shopping-cart"></i></div>
                                 Manage Order
                             </a>
@@ -109,21 +109,23 @@ if (!isset($_SESSION['role'])) {
                                 Dashboard
                             </a>
                             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseOrder" aria-expanded="false" aria-controls="collapseOrder">
-                                <div class="sb-nav-link-icon"><i class="fas fa-shopping-cart"></i></div>
-                                Make Order
+                                <div class="sb-nav-link-icon"><i class="fas fa-shopping-basket"></i></div>
+                                Item Lists 
                                 <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
                             <div class="collapse" id="collapseOrder" data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="makeOrder.php">Available Items</a>
                                     <a class="nav-link" href="cart.php">My Cart</a>
-                                    <a class="nav-link" href="order_history.php">My Order</a>
                                 </nav>
                             </div>
-
+                            <a class="nav-link" href="order_history_customer.php">
+                                <div class="sb-nav-link-icon"><i class="fas fa-shopping-cart"></i></div>
+                                My Order
+                            </a>
                             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePay" aria-expanded="false" aria-controls="collapseOrder">
                                 <div class="sb-nav-link-icon"><i class="fas fa-wallet"></i></div>
-                                Topup E-Wallet
+                                My eWallet
                                 <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
                             <div class="collapse" id="collapsePay" data-bs-parent="#sidenavAccordion">

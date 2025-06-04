@@ -76,7 +76,7 @@ try {
     $orderDate = date('Y-m-d H:i:s');
 
     // Insert order
-    $stmt = $conn->prepare("INSERT INTO orders (orderID, email, name, orderDetails, totalAmount, orderStatus, payStatus, orderDate) VALUES (?, ?, ?, ?, ?, 'Completed', ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO orders (orderID, email, name, orderDetails, totalAmount, orderStatus, payStatus, orderDate) VALUES (?, ?, ?, ?, ?, 'Preparing', ?, ?)");
     $stmt->bind_param("ssssdss", $orderID, $email, $user['name'], $orderDetails, $totalAmount, $payStatus, $orderDate);
     if (!$stmt->execute()) {
         throw new Exception("Error inserting order.");

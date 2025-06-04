@@ -159,6 +159,23 @@ function isActiveForm($formName, $activeForm) {
         input[type="radio"].role-radio {
             display: none;
         }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            color: #6c757d;
+            z-index: 5;
+        }
+        
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
     </style>
 </head>
 
@@ -183,8 +200,11 @@ function isActiveForm($formName, $activeForm) {
                             <input type="email" name="email" class="form-control" placeholder="Email" required>
                         </div>
                         
-                        <div class="mb-3">
-                            <input type="password" name="password" class="form-control" placeholder="Password" required>
+                        <div class="mb-3 password-container">
+                            <input type="password" id="login-password" name="password" class="form-control" placeholder="Password" required>
+                            <span class="password-toggle" onclick="togglePassword('login-password', this)">
+                                <i class="fas fa-eye"></i>
+                            </span>
                         </div>
                         
                         <div class="role-selector">
@@ -225,10 +245,18 @@ function isActiveForm($formName, $activeForm) {
                             <input type="email" name="email" class="form-control" placeholder="Email Address" required>
                         </div>
                         
-                        <div class="mb-3">
-                            <input type="password" name="password" class="form-control" placeholder="Create Password" required>
+                        <div class="mb-3 password-container">
+                            <input type="password" id="register-password" name="password" class="form-control" placeholder="Create Password" required onfocus="showPasswordHint()" onblur="hidePasswordHint()">
+                            <span class="password-toggle" onclick="togglePassword('register-password', this)">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            
+                            <!-- Hint text, initially hidden -->
+                            <div id="password-hint" class="form-text d-none">
+                                At least 8 characters long includes number, and symbol.
+                            </div>
                         </div>
-                        
+
                         <!-- Hidden role field set to customer -->
                         <input type="hidden" name="role" value="customer">
                         
@@ -241,6 +269,9 @@ function isActiveForm($formName, $activeForm) {
                         </div>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -272,5 +303,33 @@ function isActiveForm($formName, $activeForm) {
             });
         });
     </script>
+
+    <script>
+        function togglePassword(id, icon) {
+            const input = document.getElementById(id);
+            const eyeIcon = icon.querySelector('i');
+            
+            if (input.type === "password") {
+                input.type = "text";
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                input.type = "password";
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+
+    <script>
+        function showPasswordHint() {
+            document.getElementById('password-hint').classList.remove('d-none');
+        }
+
+        function hidePasswordHint() {
+            document.getElementById('password-hint').classList.add('d-none');
+        }
+    </script>
+
 </body>
 </html>

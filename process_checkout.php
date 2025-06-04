@@ -27,24 +27,26 @@ if ($balance < 0) {
     exit;
 }
 
-// Group items by name
+// Group items by name while preserving quantities
 $groupedItems = [];
 foreach ($items as $item) {
     $name = $item['itemName'];
     $price = floatval($item['sellingPrice']);
+    $quantity = isset($item['quantity']) ? intval($item['quantity']) : 1;
 
     if (isset($groupedItems[$name])) {
-        $groupedItems[$name]['quantity'] += 1;
+        $groupedItems[$name]['quantity'] += $quantity;
     } else {
         $groupedItems[$name] = [
             'name' => $name,
             'price' => $price,
-            'quantity' => 1
+            'quantity' => $quantity
         ];
     }
 }
 
 $orderID = uniqid('ORD');
+$custName = 'N/A';
 $orderStatus = 'Completed';
 $payStatus = ($payMethod === 'cash' || $payMethod === 'online') ? 'Paid' : 'Unpaid';
 $orderDate = date('Y-m-d H:i:s');
@@ -54,8 +56,8 @@ $conn->begin_transaction();
 
 try {
     // Insert into orders
-    $stmt = $conn->prepare("INSERT INTO orders (orderID, orderDetails, totalAmount, orderStatus, payStatus, orderDate) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param('ssdsss', $orderID, $orderDetails, $totalAmount, $orderStatus, $payStatus, $orderDate);
+    $stmt = $conn->prepare("INSERT INTO orders (orderID, name, orderDetails, totalAmount, orderStatus, payStatus, orderDate) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param('sssdsss', $orderID, $custName, $orderDetails, $totalAmount, $orderStatus, $payStatus, $orderDate);
     $stmt->execute();
 
     // Check & update stock

@@ -174,7 +174,7 @@ include('header.php');
                     <tbody>
                         <?php while ($order = mysqli_fetch_assoc($result_latest)): ?>
                             <tr>
-                                <td><?= htmlspecialchars($order['name']) ?></td>
+                                <td><?= htmlspecialchars($order['name'] ?? 'N/A') ?></td>
                                 <td><?= number_format($order['totalAmount'], 2) ?></td>
                                 <td><?= $order['orderDate'] ?></td>
                                 <td><span class="badge bg-secondary"><?= htmlspecialchars($order['orderStatus']) ?></span></td>

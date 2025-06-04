@@ -23,8 +23,13 @@ if(isset($_POST['register'])) {
         exit();
     }
 
-    if(strlen($password) < 6) {
-        $_SESSION['register_error'] = 'Password must be at least 6 characters';
+    if (
+        strlen($password) < 8 ||
+        !preg_match('/[a-z]/', $password) ||       // at least one lowercase letter
+        !preg_match('/[0-9]/', $password) ||       // at least one number
+        !preg_match('/[\W_]/', $password)          // at least one special character
+    ) {
+        $_SESSION['register_error'] = 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.';
         $_SESSION['active_form'] = 'register';
         header("Location: index.php");
         exit();
