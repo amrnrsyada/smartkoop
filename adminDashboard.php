@@ -151,7 +151,7 @@ include('header.php');
 
     <div class="card mb-4 shadow">
         <div class="card-body">
-            <h5 class="card-title">Sales Trend (Monthly | Weekyly)</h5>
+            <h5 class="card-title">Sales Trend (Monthly | Weekly)</h5>
             <div class="chart-container" style="position: relative; width: 100%; overflow-x: auto;">
                 <canvas id="salesChart"></canvas>
             </div>

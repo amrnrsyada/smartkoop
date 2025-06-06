@@ -28,7 +28,7 @@ include('header.php');
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
                 <h3 class="fw-bold text-dark d-flex align-items-center gap-2 mb-4">
-                    <i class="fas fa-shopping-cart"></i> Order Management
+                    <i class="fas fa-shopping-cart"></i> Manage Order
                 </h3>
                 <a href="notifications.php" class="btn btn-warning position-relative">
                     <i class="fas fa-bell"></i>
