@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <p><strong>Item:</strong> ${item.itemName}</p>
                         <p><strong>Price:</strong> RM${item.sellingPrice}</p>
                         <p><strong>Stock:</strong> ${item.availableStock}</p>
-                        <button id="nextScanBtn" class="btn btn-primary mt-2">Add to Cart</button>
+                        <button id="nextScanBtn" class="btn btn-primary mt-2">Next</button>
                     `;
                     checkoutBtn.disabled = true;
 
@@ -254,82 +254,104 @@ document.addEventListener("DOMContentLoaded", function () {
         checkoutBtn.disabled = scannedItems.length === 0 || balance < 0;
     }
 
-    checkoutBtn.addEventListener('click', () => {
-        const paymentMethod = paymentMethodEl.value;
-        const totalAmount = scannedItems.reduce((sum, i) => sum + (i.sellingPrice * i.quantity), 0);
-        const amountPaid = parseFloat(amountPaidEl.value);
-        const balance = amountPaid - totalAmount;
-
-        if (scannedItems.length === 0) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No items scanned'
-            });
-            return;
-        }
-
-        const itemsWithQuantities = scannedItems.map(item => ({
-            itemName: item.itemName,
-            sellingPrice: item.sellingPrice,
-            quantity: item.quantity,
-            barcode: item.barcode
-        }));
-
+checkoutBtn.addEventListener('click', () => {
+    const paymentMethod = paymentMethodEl.value;
+    const totalAmount = scannedItems.reduce((sum, i) => sum + (i.sellingPrice * i.quantity), 0);
+    const amountPaid = parseFloat(amountPaidEl.value);
+    
+    if (scannedItems.length === 0) {
         Swal.fire({
-            title: 'Confirm Checkout',
-            html: `Total Amount: RM${totalAmount.toFixed(2)}<br>
-                   Amount Paid: RM${amountPaid.toFixed(2)}<br>
-                   Balance: RM${balance.toFixed(2)}`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Confirm Checkout'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch('process_checkout.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        items: itemsWithQuantities,
-                        payMethod: paymentMethod,
-                        totalAmount: totalAmount,
-                        amountPaid: amountPaid,
-                        balance: balance
-                    })
+            icon: 'error',
+            title: 'Error',
+            text: 'No items scanned'
+        });
+        return;
+    }
+
+    if (isNaN(amountPaid) || amountPaid <= 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Amount',
+            text: 'Please enter a valid amount paid.'
+        });
+        return;
+    }
+
+    const balance = amountPaid - totalAmount;
+
+    if (balance < 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Insufficient Payment',
+            text: `Amount paid (RM${amountPaid.toFixed(2)}) is less than total (RM${totalAmount.toFixed(2)}).`
+        });
+        return;
+    }
+
+    const itemsWithQuantities = scannedItems.map(item => ({
+        itemName: item.itemName,
+        sellingPrice: item.sellingPrice,
+        quantity: item.quantity,
+        barcode: item.barcode
+    }));
+
+    Swal.fire({
+        title: 'Confirm Checkout',
+        html: `
+            <p><strong>Total Amount:</strong> RM${totalAmount.toFixed(2)}</p>
+            <p><strong>Amount Paid:</strong> RM${amountPaid.toFixed(2)}</p>
+            <p><strong>Balance:</strong> RM${balance.toFixed(2)}</p>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Confirm Checkout'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('process_checkout.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    items: itemsWithQuantities,
+                    payMethod: paymentMethod,
+                    totalAmount: totalAmount,
+                    amountPaid: amountPaid,
+                    balance: balance
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: data.message || 'Checkout successful'
-                        });
-                        scannedItems = [];
-                        updateSummaryUI();
-                        itemDetails.innerHTML = '';
-                        resultBox.innerText = 'None';
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: data.message || 'Checkout failed'
-                        });
-                    }
-                })
-                .catch(err => {
-                    console.error('Checkout failed:', err);
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message || 'Checkout successful'
+                    });
+                    scannedItems = [];
+                    updateSummaryUI();
+                    itemDetails.innerHTML = '';
+                    resultBox.innerText = 'None';
+                } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: 'Checkout failed: ' + err.message
+                        text: data.message || 'Checkout failed'
                     });
+                }
+            })
+            .catch(err => {
+                console.error('Checkout failed:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Checkout failed: ' + err.message
                 });
-            }
-        });
+            });
+        }
     });
+});
+
 
     amountPaidEl.addEventListener('input', updateBalance);
 });

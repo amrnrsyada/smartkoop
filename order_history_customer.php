@@ -137,7 +137,7 @@ $(document).ready(function() {
                 }).then(() => {
                     // Proceed with AJAX call after they acknowledge the message
                     $.ajax({
-                        url: 'cancel_order.php',
+                        url: 'customer_cancel_order.php',
                         method: 'POST',
                         data: { 
                             orderID: orderID,
