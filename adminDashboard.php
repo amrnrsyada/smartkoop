@@ -177,7 +177,7 @@ include('header.php');
                                 <td><?= htmlspecialchars($order['name'] ?? 'N/A') ?></td>
                                 <td><?= number_format($order['totalAmount'], 2) ?></td>
                                 <td><?= $order['orderDate'] ?></td>
-                                <td><span class="badge bg-secondary"><?= htmlspecialchars($order['orderStatus']) ?></span></td>
+                                <td><span class="badge bg-primary"><?= htmlspecialchars($order['orderStatus']) ?></span></td>
                             </tr>
                         <?php endwhile; ?>
                     </tbody>
@@ -202,15 +202,8 @@ new Chart(ctx, {
             backgroundColor: 'rgba(13, 110, 253, 0.2)',
             fill: true,
             tension: 0.4
-        },
-        {
-                label: 'Weekly Sales (RM)',
-                data: <?= json_encode($weekly_sales) ?>,
-                borderColor: 'rgba(40, 167, 69, 1)',
-                backgroundColor: 'rgba(40, 167, 69, 0.2)',
-                fill: true,
-                tension: 0.4
         }
+        
     ]},
     options: {
         responsive: true,
@@ -220,7 +213,7 @@ new Chart(ctx, {
                 title: { display: true, text: 'RM' }
             },
             x: {
-                title: { display: true, text: 'Month/ Week' },
+                title: { display: true, text: 'Month' },
                 ticks: {
                     maxRotation: 45,
                     minRotation: 0,
