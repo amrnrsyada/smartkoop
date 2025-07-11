@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'config.php';
+include '../config.php';
 
 // Prevent browser from caching the page
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -8,7 +8,7 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'customer') {
-  header("Location: index.php");
+  header("Location: ../index.php");
   exit();
 }
 
@@ -29,7 +29,7 @@ if (!empty($cart)) {
     }
 }
 
-include('header.php');
+include('../header.php');
 ?>
 
 <div class="container py-4">
@@ -37,7 +37,7 @@ include('header.php');
     <h2 class="fw-bold text-dark"><i class="fas fa-shopping-cart me-2"></i>My Cart</h2>
     <div>
       <a href="makeOrder.php" class="btn btn-danger me-2">Browse Menu</a>
-      <a href="topup.php" class="btn btn-primary">Top Up</a>
+      <a href="../ManageTopup/topup.php" class="btn btn-primary">Top Up</a>
     </div>
   </div>
 
@@ -127,7 +127,7 @@ include('header.php');
   </div>
 </div>
 
-<?php include('footer.php'); ?>
+<?php include('../footer.php'); ?>
 
 <script>
   window.addEventListener('pageshow', function(event) {

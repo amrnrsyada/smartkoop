@@ -1,6 +1,6 @@
 <?php 
 session_start();
-include 'config.php';  
+include '../config.php';  
 
 // Prevent browser from caching the page
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -9,7 +9,7 @@ header("Pragma: no-cache");
 
 // Check if user is logged in and has the correct role
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'customer') {
-  header("Location: index.php");
+  header("Location: ../index.php");
   exit();
 }
 
@@ -23,7 +23,7 @@ if (isset($_SESSION['cart'])) {
     }
 }
 
-include('header.php');
+include('../header.php');
 ?>
 
 <style>
@@ -152,7 +152,7 @@ include('header.php');
   ?>
 </div>
 
-<?php include('footer.php'); ?>
+<?php include('../footer.php'); ?>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {

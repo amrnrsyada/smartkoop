@@ -1,6 +1,6 @@
 <?php 
-require 'vendor/autoload.php';
-include 'config.php';
+require '../vendor/autoload.php';
+include '../config.php';
 
 // Ambil parameter dari URL
 $summary_type = $_GET['summary_type'] ?? 'day';

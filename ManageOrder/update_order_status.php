@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'config.php';
+include '../config.php';
 
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'staff') {
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);

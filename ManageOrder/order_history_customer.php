@@ -1,7 +1,7 @@
 <?php
 session_start();
 date_default_timezone_set('Asia/Kuala_Lumpur');
-include 'config.php';
+include '../config.php';
 
 // Prevent browser from caching the page
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -9,7 +9,7 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'customer') {
-  header("Location: index.php");
+  header("Location: ../index.php");
   exit();
 }
 
@@ -18,7 +18,7 @@ $stmt = $conn->prepare("SELECT * FROM orders WHERE email = ? ORDER BY orderDate 
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $orders = $stmt->get_result();
-include('header.php');
+include('../header.php');
 ?>
 
 <style>
@@ -113,7 +113,7 @@ include('header.php');
     </div>
 </div>
 
-<?php include('footer.php'); ?>
+<?php include('../footer.php'); ?>
 
 <script>
 window.addEventListener('pageshow', function(event) {

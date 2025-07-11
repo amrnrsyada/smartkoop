@@ -7,11 +7,11 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'staff') {
-  header("Location: index.php");
+  header("Location: ../index.php");
   exit();
 }
 
-include('header.php');
+include('../header.php');
 ?>
 
 <div class="container py-4">
@@ -64,7 +64,7 @@ include('header.php');
   </div>
 </div>
 
-<?php include('footer.php'); ?>
+<?php include('../footer.php'); ?>
 
 
 <script> 

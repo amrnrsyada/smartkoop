@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'config.php';
+include '../config.php';
 
 // Prevent browser from caching the page
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -8,12 +8,12 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'customer') {
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit();
 }
 
 $success = isset($_GET['success']) && $_GET['success'] == 1;
-include('header.php');
+include('../header.php');
 ?>
 
 <script src="https://js.stripe.com/v3/"></script>
@@ -90,7 +90,7 @@ include('header.php');
                     <button id="payBtn" class="btn btn-success btn-pay">
                         <i class="fas fa-credit-card me-2"></i>Proceed Payment
                     </button>
-                    <a href="makeOrder.php" class="btn btn-outline-secondary">
+                    <a href="../ManageOrder/makeOrder.php" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left me-2"></i>Back to Menu
                     </a>
                 </div>
@@ -265,8 +265,8 @@ include('header.php');
     
     // Close success modal and redirect if needed
     document.getElementById('topupSuccessModal').addEventListener('hidden.bs.modal', function () {
-        window.location.href = 'makeOrder.php';
+        window.location.href = '../ManageOrder/makeOrder.php';
     });
 </script>
 
-<?php include('footer.php'); ?>
+<?php include('../footer.php'); ?>

@@ -126,7 +126,7 @@ if(isset($_POST['login'])) {
     if ($user['role'] === 'staff') {
         header("Location: adminDashboard.php");
     } else {
-        header("Location: makeOrder.php");
+        header("Location: ../ManageOrder/makeOrder.php");
     }
     exit();
 }

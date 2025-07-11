@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'config.php'; 
+include '../config.php'; 
 
 // Prevent browser from caching the page
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -8,7 +8,7 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'staff') {
-  header("Location: index.php");
+  header("Location: ../index.php");
   exit();
 }
 
@@ -61,7 +61,7 @@ if (isset($_POST['delete_id'])) {
     exit();
 }
 
-include('header.php');
+include('../header.php');
 ?>
 
 <style>
@@ -129,7 +129,7 @@ include('header.php');
     </div>
 </div>
 
-<?php include('footer.php'); ?>         
+<?php include('../footer.php'); ?>         
 
 <!-- untuk bootstrap alert -->
 <?php if (isset($_SESSION['alert'])): ?>  
