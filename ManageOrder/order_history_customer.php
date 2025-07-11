@@ -1,10 +1,16 @@
 <?php
 session_start();
+date_default_timezone_set('Asia/Kuala_Lumpur');
 include 'config.php';
 
-if (!isset($_SESSION['email'])) {
-    header("Location: index.php");
-    exit();
+// Prevent browser from caching the page
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'customer') {
+  header("Location: index.php");
+  exit();
 }
 
 $email = $_SESSION['email'];
@@ -69,8 +75,10 @@ include('header.php');
                                     <?php
                                     switch ($row['orderStatus']) {
                                         case 'Preparing': echo 'bg-warning text-dark'; break;
+                                        case 'Ready To Pickup': echo 'bg-secondary'; break;
                                         case 'Completed': echo 'bg-success'; break;
                                         case 'Cancelled': echo 'bg-danger'; break;
+                                        case 'Cancel Requested': echo 'badge-cancel-requested'; break;
                                         default: echo 'bg-secondary';
                                     }
                                     ?>">
@@ -84,7 +92,7 @@ include('header.php');
                                        target="_blank">
                                         <i class="fas fa-receipt"></i> Receipt
                                     </a>
-                                    <?php if ($row['orderStatus'] === 'Preparing' || $row['orderStatus'] === 'Processing'): ?>
+                                    <?php if ($row['orderStatus'] === 'Preparing' || $row['orderStatus'] === 'Ready To Pickup'): ?>
                                     <button class="btn btn-sm btn-danger cancel-btn" 
                                             data-order-id="<?= $row['orderID'] ?>"
                                             data-amount="<?= $row['totalAmount'] ?>">
@@ -108,6 +116,12 @@ include('header.php');
 <?php include('footer.php'); ?>
 
 <script>
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        window.location.reload();
+    }
+});
+
 $(document).ready(function() {
     $('#orderTable').DataTable({
         responsive: true,

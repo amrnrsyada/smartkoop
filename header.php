@@ -20,6 +20,8 @@ if (!isset($_SESSION['role'])) {
         <meta name="description" content="" />
         <meta name="author" content="" />
         <title>PETAKOM MART</title>
+        <!-- Favicon -->
+        <link rel="icon" href="https://umpsa.edu.my/themes/pana/favicon.ico" />
         <link href="asset/css/styles.css" rel="stylesheet" />
         <link rel="stylesheet" type="text/css" href="asset/vendor/datatables/dataTables.bootstrap5.min.css"/>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

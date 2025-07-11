@@ -1,5 +1,11 @@
 <?php  
 session_start();
+
+// Prevent browser from caching the page
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'staff') {
   header("Location: index.php");
   exit();
@@ -16,7 +22,7 @@ include('header.php');
       <div class="card border-success shadow-lg">
         <div class="card-header bg-success text-white">Camera Scanner</div>
         <div class="card-body">
-          <div id="scanner" style="width: 100%; height: 300px; background-color: #f8f9fa;"></div>
+          <div id="scanner" style="width: 100%; max-width:640px; height: 300px; background-color: #f8f9fa;"></div>
           <p class="mt-3 mb-0">Scanned Barcode:</p>
           <p id="barcodeResult" class="fw-bold text-success fs-5">None</p>
         </div>
@@ -46,7 +52,7 @@ include('header.php');
 
             <div class="mb-3">
               <label for="amountPaid" class="form-label">Amount Paid (RM):</label>
-              <input type="number" id="amountPaid" class="form-control" min="0" step="0.01" placeholder="Enter amount paid" />
+              <input type="number" id="amountPaid" class="form-control" min="0" step="0.01" placeholder="Enter amount paid" /> <!-- min bayar 0 -->
             </div>
 
             <p class="fw-bold">Balance: RM<span id="balanceAmount">0.00</span></p>
@@ -60,11 +66,14 @@ include('header.php');
 
 <?php include('footer.php'); ?>
 
-<!-- Include SweetAlert2 CSS and JS in your footer.php or here -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script> 
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        window.location.reload();
+    }
+});
+
 document.addEventListener("DOMContentLoaded", function () {
     const resultBox = document.getElementById('barcodeResult');
     const itemDetails = document.getElementById('itemDetails');
@@ -168,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function () {
             itemsList.innerHTML += `
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
-                        ${item.itemName} - RM${item.sellingPrice.toFixed(2)}
+                        ${item.itemName} : RM${item.sellingPrice.toFixed(2)}
                     </div>
                     <div class="d-flex align-items-center">
                         <button class="btn btn-sm btn-outline-secondary" onclick="adjustQuantity(${index}, -1)">-</button>

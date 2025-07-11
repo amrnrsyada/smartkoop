@@ -25,6 +25,8 @@ function isActiveForm($formName, $activeForm) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PETAKOM MART</title>
+    <!-- Favicon -->
+    <link rel="icon" href="https://umpsa.edu.my/themes/pana/favicon.ico" />
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
@@ -209,14 +211,14 @@ function isActiveForm($formName, $activeForm) {
                         
                         <div class="role-selector">
                             <label class="role-option active">
-                                <input type="radio" name="role" value="staff" class="role-radio" checked>
-                                <i class="fas fa-user-tie"></i>
-                                <div>Staff</div>
-                            </label>
-                            <label class="role-option">
-                                <input type="radio" name="role" value="customer" class="role-radio">
+                                <input type="radio" name="role" value="customer" class="role-radio" checked>
                                 <i class="fas fa-user"></i>
                                 <div>Customer</div>
+                            </label>
+                            <label class="role-option">
+                                <input type="radio" name="role" value="staff" class="role-radio">
+                                <i class="fas fa-user-tie"></i>
+                                <div>Staff</div>
                             </label>
                         </div>
                         
@@ -253,7 +255,7 @@ function isActiveForm($formName, $activeForm) {
                             
                             <!-- Hint text, initially hidden -->
                             <div id="password-hint" class="form-text d-none">
-                                At least 8 characters long includes number, and symbol.
+                                At least 6 characters long includes number, and symbol.
                             </div>
                         </div>
 

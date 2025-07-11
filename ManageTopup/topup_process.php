@@ -1,5 +1,6 @@
 <?php
 session_start();
+date_default_timezone_set('Asia/Kuala_Lumpur');
 include 'config.php';
 require 'vendor/autoload.php';
 
@@ -29,7 +30,7 @@ try {
         'payment_method' => $payment_method_id,
         'confirmation_method' => 'manual',
         'confirm' => true,
-        'return_url' => 'http://localhost/petakommart/topup.php?success=1',
+        'return_url' => 'http://localhost/petakom/topup.php?success=1',
     ]);
 
     if ($paymentIntent->status == 'succeeded') {

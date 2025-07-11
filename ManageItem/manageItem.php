@@ -2,6 +2,11 @@
 session_start();
 include 'config.php';
 
+// Prevent browser from caching the page
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'staff') {
     header("Location: index.php");
     exit();
@@ -142,6 +147,7 @@ if (isset($_GET['edit_id'])) {
     $editData = $editStmt->get_result()->fetch_assoc();
 }
 ?>
+
 <?php include('header.php'); ?>
 
 <style>
@@ -151,6 +157,19 @@ if (isset($_GET['edit_id'])) {
     .action-btn-group .btn { padding: 0.375rem 0.75rem; }
     .img-thumbnail { width: 80px; height: 80px; object-fit: cover; }
     .modal-header, .modal-footer { border: none; }
+        #interactive {
+        width: 100%;
+        height: 200px;
+        position: relative;
+        background: black;
+    }
+    #interactive video {
+        width: 100%;
+        height: 100%;
+    }
+    #interactive canvas {
+        display: none;
+    }
 </style>
 
 <div class="container-fluid py-5">
@@ -219,6 +238,7 @@ if (isset($_GET['edit_id'])) {
                                     <button type="button" class="btn btn-sm btn-outline-danger openDeleteModal"
                                         data-id="<?= $row['itemID'] ?>"
                                         data-name="<?= $row['itemName'] ?>"
+                                        data-stock="<?= $row['availableStock'] ?>"
                                         title="Delete">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
@@ -254,7 +274,18 @@ if (isset($_GET['edit_id'])) {
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Barcode</label>
-                            <input type="text" class="form-control" name="barcode" placeholder="Barcode Number" required>
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="barcode" id="barcodeInput" placeholder="Barcode Number">
+                                <button type="button" class="btn btn-primary" id="startScannerBtn">
+                                    <i class="fas fa-barcode"></i> Scan
+                                </button>
+                            </div>
+                            <div id="scanner-container" style="display:none; margin-top:10px;">
+                                <div id="interactive" class="viewport"></div>
+                                <button type="button" class="btn btn-danger mt-2 w-100" id="stopScannerBtn">
+                                    <i class="fas fa-stop"></i> Stop Scanner
+                                </button>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Sell Price (RM)</label>
@@ -262,7 +293,7 @@ if (isset($_GET['edit_id'])) {
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Cost Price (RM)</label>
-                            <input type="number" class="form-control" name="costPrice" step="0.01" placeholder="Cost Price" required>
+                            <input type="number" class="form-control" name="costPrice" step="0.01" placeholder="Cost Price">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Stock</label>
@@ -302,7 +333,7 @@ if (isset($_GET['edit_id'])) {
 
 <!-- Edit Item Modal --> 
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg"> <!-- Lebihkan ruang -->
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Edit Item</h5>
@@ -318,7 +349,7 @@ if (isset($_GET['edit_id'])) {
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Barcode</label>
-                            <input type="text" class="form-control" name="barcode" id="edit_barcode" required>
+                            <input type="text" class="form-control" name="barcode" id="edit_barcode">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Sell Price (RM)</label>
@@ -330,7 +361,7 @@ if (isset($_GET['edit_id'])) {
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Stock</label>
-                            <input type="number" class="form-control" name="availableStock" id="edit_stock" required>
+                            <input type="number" class="form-control" name="availableStock" id="edit_stock" required min="0">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Expiry Date</label>
@@ -415,98 +446,191 @@ if (isset($_GET['edit_id'])) {
 <?php include('footer.php'); ?>
 
 <script>
-$(document).ready(function() {
-    // DataTable Initialization
-    $('#itemsTable').DataTable({
-        "responsive": true,
-        "autoWidth": false
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+            window.location.reload();
+        }
     });
 
-    // Trigger Add Item Modal
-    $('#openModalBtn').click(function() {
-        $('#productModal').modal('show');
-    });
+    $(document).ready(function() {
+        // DataTable Initialization
+        $('#itemsTable').DataTable({
+            "responsive": true,
+            "autoWidth": false,
+            "destroy": true // Allows reinitialization
+        });
 
-    // If edit data exists, auto-open edit modal and fill in details
-    <?php if($editData): ?>
-        var editModal = new bootstrap.Modal(document.getElementById('editModal'));
-        editModal.show();
-        $('#edit_id').val("<?= $editData['itemID'] ?>");
-        $('#edit_name').val("<?= $editData['itemName'] ?>");
-        $('#edit_price').val("<?= $editData['sellingPrice'] ?>");
-        $('#edit_cost_price').val("<?= $editData['costPrice'] ?>");
-        $('#edit_stock').val("<?= $editData['availableStock'] ?>");
-        $('#edit_barcode').val("<?= $editData['barcode'] ?>");
-        $('#edit_date').val("<?= $editData['expiryDate'] ?>");
-        $('#edit_category_id').val("<?= $editData['category_id'] ?>");
-    <?php endif; ?>
+        // Trigger Add Item Modal
+        $('#openModalBtn').click(function() {
+            $('#productModal').modal('show');
+        });
 
-    // View Item Modal
-    $('.openViewModal').click(function() {
-        const btn = $(this);
-        $('#view_name').text(btn.data('name'));
-        $('#view_price').text("RM " + btn.data('price'));
-        $('#view_cost').text("RM " + btn.data('cost'));
-        $('#view_stock').text(btn.data('stock'));
-        $('#view_barcode').text(btn.data('barcode'));
-        $('#view_expiry').text(btn.data('expiry'));
-        $('#view_category').text(btn.data('category'));
-        $('#view_image').attr('src', btn.data('image'));
-        new bootstrap.Modal(document.getElementById('viewModal')).show();
-    });
+        // If edit data exists, auto-open edit modal and fill in details
+        <?php if($editData): ?>
+            var editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            editModal.show();
+            $('#edit_id').val("<?= $editData['itemID'] ?>");
+            $('#edit_name').val("<?= $editData['itemName'] ?>");
+            $('#edit_price').val("<?= $editData['sellingPrice'] ?>");
+            $('#edit_cost_price').val("<?= $editData['costPrice'] ?>");
+            $('#edit_stock').val("<?= $editData['availableStock'] ?>");
+            $('#edit_barcode').val("<?= $editData['barcode'] ?>");
+            $('#edit_date').val("<?= $editData['expiryDate'] ?>");
+            $('#edit_category_id').val("<?= $editData['category_id'] ?>");
+        <?php endif; ?>
 
-    // Delete Item using AJAX & SweetAlert2
-    $('.openDeleteModal').click(function() {
-        const itemId = $(this).data('id');
-        const itemName = $(this).data('name');
-        Swal.fire({
-            title: 'Delete Item',
-            text: `Are you sure you want to delete "${itemName}"?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: 'manageItem.php',
-                    type: 'POST',
-                    data: { delete_id: itemId },
-                    dataType: 'json',
-                    success: function(response) {
-                        if(response.status === 'success'){
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Deleted!',
-                                text: response.message,
-                            }).then(() => {
-                                location.reload();
-                            });
-                        } else {
+        // View Item Modal - Using event delegation
+        $(document).on('click', '.openViewModal', function() {
+            const btn = $(this);
+            $('#view_name').text(btn.data('name'));
+            $('#view_price').text("RM " + btn.data('price'));
+            $('#view_cost').text("RM " + btn.data('cost'));
+            $('#view_stock').text(btn.data('stock'));
+            $('#view_barcode').text(btn.data('barcode'));
+            $('#view_expiry').text(btn.data('expiry'));
+            $('#view_category').text(btn.data('category'));
+            $('#view_image').attr('src', btn.data('image'));
+            new bootstrap.Modal(document.getElementById('viewModal')).show();
+        });
+
+        // Delete Item - Using event delegation
+        $(document).on('click', '.openDeleteModal', function() {
+            const itemId = $(this).data('id');
+            const itemName = $(this).data('name');
+            const itemStock = $(this).data('stock');
+
+            if (itemStock > 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cannot Delete Item',
+                    text: `Cannot delete "${itemName}". ${itemStock} units left in stock.`,
+                    confirmButtonColor: '#3085d6',
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Delete Item',
+                text: `Are you sure you want to delete "${itemName}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: 'manageItem.php',
+                        type: 'POST',
+                        data: { delete_id: itemId },
+                        dataType: 'json',
+                        success: function(response) {
+                            if(response.status === 'success'){
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: response.message,
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.message
+                                });
+                            }
+                        },
+                        error: function() {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
-                                text: response.message
+                                text: 'AJAX request failed!'
                             });
                         }
+                    });
+                }
+            });
+        });
+
+        // Check if there is a SweetAlert message in session and display it
+        <?php if (isset($_SESSION['swal'])): ?>
+            let swalData = <?php echo $_SESSION['swal']; unset($_SESSION['swal']); ?>;
+            Swal.fire(swalData);
+        <?php endif; ?>
+
+        let scannerActive = false;
+        
+        // Start barcode scanner
+        $('#startScannerBtn').click(function() {
+            $('#scanner-container').show();
+            $('#barcodeInput').focus().val('');
+            
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#interactive'),
+                    constraints: {
+                        width: 480,
+                        height: 320,
+                        facingMode: "environment"
                     },
-                    error: function() {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'AJAX request failed!'
-                        });
-                    }
-                });
+                },
+                decoder: {
+                    readers: [
+                        "code_128_reader",
+                        "ean_reader",
+                        "ean_8_reader",
+                        "code_39_reader",
+                        "code_39_vin_reader",
+                        "codabar_reader",
+                        "upc_reader",
+                        "upc_e_reader",
+                        "i2of5_reader"
+                    ]
+                },
+            }, function(err) {
+                if (err) {
+                    console.log(err);
+                    $('#scanner-container').hide();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to initialize barcode scanner: ' + err.message
+                    });
+                    return;
+                }
+                Quagga.start();
+                scannerActive = true;
+            });
+
+            Quagga.onDetected(function(result) {
+                if (result && result.codeResult) {
+                    const code = result.codeResult.code;
+                    $('#barcodeInput').val(code);
+                    stopScanner();
+                    $('input[name="sellingPrice"]').focus();
+                }
+            });
+        });
+
+        // Stop barcode scanner
+        $('#stopScannerBtn').click(function() {
+            stopScanner();
+        });
+
+        function stopScanner() {
+            if (scannerActive) {
+                Quagga.stop();
+                scannerActive = false;
             }
+            $('#scanner-container').hide();
+        }
+
+        // Stop scanner when modal is closed
+        $('#productModal').on('hidden.bs.modal', function () {
+            stopScanner();
         });
     });
-
-    // Check if there is a SweetAlert message in session and display it
-    <?php if (isset($_SESSION['swal'])): ?>
-        let swalData = <?php echo $_SESSION['swal']; unset($_SESSION['swal']); ?>;
-        Swal.fire(swalData);
-    <?php endif; ?>
-});
 </script>

@@ -24,7 +24,7 @@ if(isset($_POST['register'])) {
     }
 
     if (
-        strlen($password) < 8 ||
+        strlen($password) < 6 ||
         !preg_match('/[a-z]/', $password) ||       // at least one lowercase letter
         !preg_match('/[0-9]/', $password) ||       // at least one number
         !preg_match('/[\W_]/', $password)          // at least one special character

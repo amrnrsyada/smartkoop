@@ -2,6 +2,11 @@
 session_start();
 include 'config.php';
 
+// Prevent browser from caching the page
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'staff') {
     header("Location: index.php");
     exit();
@@ -189,6 +194,13 @@ include('header.php');
 <?php include('footer.php'); ?>
 
 <script>
+
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        window.location.reload();
+    }
+});
+
 const ctx = document.getElementById('daySalesChart').getContext('2d');
 new Chart(ctx, {
   type: 'bar',

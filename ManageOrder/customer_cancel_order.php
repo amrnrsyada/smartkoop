@@ -37,7 +37,7 @@ if ($result->num_rows === 0) {
 $row = $result->fetch_assoc();
 $status = $row['orderStatus'];
 
-if ($status !== 'Preparing' && $status !== 'Processing') {
+if ($status !== 'Preparing' && $status !== 'Ready To Pickup') {
     echo json_encode(['success' => false, 'message' => 'Cannot cancel this order.']);
     exit;
 }

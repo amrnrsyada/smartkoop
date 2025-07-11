@@ -2,6 +2,11 @@
 session_start();
 include 'config.php'; 
 
+// Prevent browser from caching the page
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'staff') {
   header("Location: index.php");
   exit();
@@ -123,11 +128,11 @@ include('header.php');
         </div>
     </div>
 </div>
-         
 
-<?php include('footer.php'); ?>
+<?php include('footer.php'); ?>         
 
-<?php if (isset($_SESSION['alert'])): ?>
+<!-- untuk bootstrap alert -->
+<?php if (isset($_SESSION['alert'])): ?>  
 <script>
   Swal.fire({
     icon: '<?= $_SESSION['alert']['type'] ?>',
@@ -138,27 +143,34 @@ include('header.php');
 </script>
 <?php unset($_SESSION['alert']); endif; ?>
 
-<!-- Move this script OUTSIDE the if block -->
-<script>
-  document.querySelectorAll('.delete-category-btn').forEach(button => {
-    button.addEventListener('click', function () {
-      const form = this.closest('form');
 
-      Swal.fire({
-        title: 'Are you sure?',
-        text: "This will permanently delete the category.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, delete it!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          form.submit();
+<script>
+
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+            window.location.reload();
         }
-      });
     });
-  });
+
+    document.querySelectorAll('.delete-category-btn').forEach(button => {
+        button.addEventListener('click', function () {
+        const form = this.closest('form');
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This will permanently delete the category.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+            form.submit();
+            }
+        });
+        });
+    });
 </script>
 
 

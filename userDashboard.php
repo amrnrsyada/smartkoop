@@ -2,6 +2,11 @@
 session_start();
 include 'config.php';
 
+// Prevent browser from caching the page
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'customer') {
   header("Location: index.php");
   exit();
@@ -112,6 +117,12 @@ include('header.php');
 <?php include('footer.php'); ?>
 
 <script>
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        window.location.reload();
+    }
+});
+
 window.onload = () => {
     const ctx = document.getElementById('spendingChart').getContext('2d');
     const spendingChart = new Chart(ctx, {
@@ -135,11 +146,7 @@ window.onload = () => {
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return 'RM ' + value.toFixed(2);
-                        }
-                    },
+                    
                     title: {
                         display: true,
                         text: 'Amount (RM)'
